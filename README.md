@@ -24,7 +24,7 @@ NoteMind is the backend of a note-taking application with semantic search. Notes
 ---
 
 ## Architecture
-## Performance
+
 ```mermaid
 flowchart LR
     C[Client] -->|REST + JWT| API[FastAPI]
