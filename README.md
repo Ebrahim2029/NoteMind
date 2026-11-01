@@ -24,10 +24,7 @@ NoteMind is the backend of a note-taking application with semantic search. Notes
 ---
 
 ## Architecture
-
-<!-- Optional: replace with an exported image of the diagram -->
-![Architecture](docs/images/architecture.png)
-
+## Performance
 ```mermaid
 flowchart LR
     C[Client] -->|REST + JWT| API[FastAPI]
@@ -121,41 +118,6 @@ pytest tests/perf               # concurrency tests
 ```
 
 The concurrency test starts several threads at the same moment, each running create, read, filter and delete operations on the repositories, and checks that the average latency stays under 100 ms.
-
----
-
-## Performance
-
-<!-- Fill in with your own measured results, or add a chart image -->
-![Load test results](docs/images/performance.png)
-
-| Scenario | Concurrent workers | Operations | Avg latency |
-|---|---|---|---|
-| Repository CRUD | 5 | 100 | ... |
-| Repository CRUD | 10 | 200 | ... |
-
-Resource usage during the load run is recorded in `examples/perf/metrics.csv`.
-
----
-
-## Project structure
-
-```
-api/              REST routers and request/response schemas
-core/
-  entities/       domain entities and value objects
-  repositories/   data access with caching
-  services/       search, sync and session logic
-  ai/             embedding and LLM clients, retrieval pipeline, ranking
-infrastructure/   PostgreSQL, Redis, Redis Streams, ChromaDB clients
-workers/          background sync worker
-utils/            chunking, retries, rate limiting, security, logging
-alembic/          database migrations
-tests/            unit and concurrency tests
-docs/             design notes, diagrams and operations guides
-```
-
-More detailed documentation, including sequence diagrams and the ChromaDB schema design, is in [`docs/`](docs/).
 
 ---
 

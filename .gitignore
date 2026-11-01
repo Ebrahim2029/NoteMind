@@ -220,3 +220,6 @@ htmlcov/
 nltk_data/
 assets/nltk/
 utils/chunker/static/data/
+
+
+logs/

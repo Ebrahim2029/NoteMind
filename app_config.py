@@ -4,7 +4,7 @@ import os
 from utils.chunker.download_data import ensure_punkt
 
 def reload_env():
-    load_dotenv(override=True)
+    load_dotenv(override=False)
 
 class App_Settings:
     def __init__(self):

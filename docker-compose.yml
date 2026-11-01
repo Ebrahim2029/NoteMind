@@ -11,7 +11,7 @@ services:
     image: postgres:14.19
     container_name: postgres_note_main
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "127.0.0.1:${POSTGRES_PORT}:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -29,7 +29,7 @@ services:
     image: redis:alpine3.22
     container_name: redis_note_main
     ports:
-      - "${REDIS_PORT}:6379"  
+      - "127.0.0.1:${REDIS_PORT}:6379"  
     volumes:
       - redis_data:/data  
     healthcheck:
@@ -46,7 +46,7 @@ services:
       IS_PERSISTENT: "TRUE"
       PERSIST_DIRECTORY: /chroma/chroma
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - chroma_data:/chroma/chroma
     deploy:
