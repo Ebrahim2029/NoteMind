@@ -1,0 +1,28 @@
+# pip install -r requirements/base.txt
+# pip freeze > requirements.txt
+
+
+alembic==1.16.4
+greenlet==3.2.4
+Mako==1.3.10
+MarkupSafe==3.0.2
+psycopg2-binary==2.9.10
+python-dotenv==1.1.1
+redis==6.4.0
+SQLAlchemy==2.0.42
+typing_extensions==4.14.1
+tzdata==2025.2
+email-validator==2.2.0
+
+## new libraries
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+pydantic==2.11.7
+chromadb==1.0.17
+httpx==0.28.1
+openai==1.99.9
+PyJWT==2.10.1
+
+# --chunker--
+nltk==3.9.1
+tiktoken==0.11.0

@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: smart_notes_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=True
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - chromadb
+    restart: unless-stopped
+    networks:
+      - smart_notes_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: smart_notes_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smart_notes_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: smart_notes_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - smart_notes_network
+
+  chromadb:
+    image: chromadb/chroma:0.4.15
+    container_name: smart_notes_chromadb
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS=admin:admin
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenConfigServerAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.token.TokenAuthServerProvider
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks:
+      - smart_notes_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:
+
+networks:
+  smart_notes_network:
+    driver: bridge

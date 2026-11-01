@@ -1,0 +1,4 @@
+# pip install -r requirements/prod.txt
+
+uvicorn[standard]==0.35.0
+gunicorn[standard]==23.0.0

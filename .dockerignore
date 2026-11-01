@@ -1,0 +1,75 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# Python / local
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.venv/
+venv/
+env/
+ENV/
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Data / logs
+*.log
+logs/
+*.sqlite
+
+# Cache
+.cache/
+.ipynb_checkpoints/
+
+# Docker
+Dockerfile~
+docker-compose.override.yml
+
+# Node (if any front-end assets creep in later)
+node_modules/
+
+# Tests artifacts
+coverage/
+htmlcov/
+.benchmarks/
+test/
+pytest.ini
+
+# Large assets not needed in image
+assets/help AI/
+assets/Doc/
+share/
+# environment variables
+.env
+bin/
+lib64/
+share/
+include/
+pyvenv.cfg
+
+# Development tools
+README/
+requirements/
+examples/
+assets/
+.vscode/
+
+
+

@@ -1,0 +1,168 @@
+# /docker-compose.yml
+
+x-healthcheck: &default-healthcheck
+  interval: 5s # Checks the container's health every 5 seconds.
+  timeout: 3s # If the health check command takes longer than 3 seconds, it's considered a failure.
+  retries: 20 # The container is marked as unhealthy after 20 consecutive failures.
+  start_period: 10s # Docker waits 10 seconds before starting health checks (useful for applications that need time to initialize).
+
+services:
+  postgres:
+    image: postgres:14.19
+    container_name: postgres_note_main
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      <<: *default-healthcheck
+    
+    networks:
+      - smart_notes_network
+
+  redis:
+    image: redis:alpine3.22
+    container_name: redis_note_main
+    ports:
+      - "${REDIS_PORT}:6379"  
+    volumes:
+      - redis_data:/data  
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      <<: *default-healthcheck
+    networks:
+      - smart_notes_network
+
+
+  chroma:
+    image: chromadb/chroma:1.0.20
+    container_name: chroma_note_main
+    environment:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    deploy:
+      resources:
+        limits:
+          memory: 8G     # Hard limit (container crashes if exceeded)
+          cpus: "2.0"    # Allocate 2 CPU cores
+        reservations:
+          memory: 4G    # Guaranteed minimum memory
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    networks:
+      - smart_notes_network
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_note_main
+    command: uvicorn main:app --host 0.0.0.0 --port 9000 --proxy-headers --reload
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    environment:
+     
+      # DB
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: ${REDIS_DB:-0}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Chroma
+      CHROMA_HTTP_URL: http://chroma_note_main:8000
+      CHROMA_NAME_DATABASE: ${CHROMA_NAME_DATABASE:-notes_db}
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-change_me}
+      JWT_ALG: ${JWT_ALG:-HS256}
+      JWT_EXP_MINUTES: ${JWT_EXP_MINUTES:-60}
+      # Rate limit
+      API_RATE_LIMIT_PER_MIN: ${API_RATE_LIMIT_PER_MIN}
+      # Streams
+      NOTES_STREAM: ${NOTES_STREAM}
+      STREAM_GROUP: ${STREAM_GROUP}
+      STREAM_CONSUMER: ${STREAM_CONSUMER}
+      STREAM_BLOCK_MS: ${STREAM_BLOCK_MS}
+      STREAM_BATCH: ${STREAM_BATCH:-100}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chroma:
+        condition:  service_started
+
+    volumes:
+      - ./:/app:cached
+    networks:
+      - smart_notes_network
+   
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker_note_main
+    command: python -m workers.sync_worker
+    env_file:
+      - .env
+    environment:
+      # Same env as API (kept minimal)
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: ${REDIS_DB}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      CHROMA_HTTP_URL: http://chroma_note_main:8000
+      
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL}
+      NOTES_STREAM: ${NOTES_STREAM}
+      STREAM_GROUP: ${STREAM_GROUP}
+      STREAM_CONSUMER: ${STREAM_CONSUMER}
+      STREAM_BLOCK_MS: ${STREAM_BLOCK_MS}
+      STREAM_BATCH: ${STREAM_BATCH}
+    depends_on:
+      redis:
+        condition: service_healthy
+      chroma:
+        condition:  service_started
+    volumes:
+      - ./:/app:cached
+    networks:
+      - smart_notes_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:
+
+networks:
+  smart_notes_network:
+    driver: bridge

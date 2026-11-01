@@ -1,0 +1,71 @@
+# /requirements.txt
+# Core dependencies
+fastapi==0.95.2
+uvicorn==0.22.0
+python-dotenv==1.0.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.15
+psycopg2-binary==2.9.6
+asyncpg==0.27.0
+alembic==1.11.1
+
+# Redis
+redis==4.5.5
+hiredis==2.2.3
+
+# Vector Store
+chromadb==0.3.25
+sentence-transformers==2.2.2
+
+# AI
+openai==0.27.8
+tiktoken==0.4.0
+
+# Authentication
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1
+
+# Testing
+pytest==7.3.1
+pytest-asyncio==0.21.0
+httpx==0.24.1
+
+# Development
+black==23.3.0
+mypy==1.3.0
+ruff==0.0.272
+###############################################################################################
+
+
+
+# التعامل مع PostgreSQL عبر Python
+psycopg2-binary==2.9.10  
+
+# ORM للتعامل مع قواعد البيانات بشكل كائني
+SQLAlchemy==2.0.42  
+
+# أداة لترحيل وتحديث هيكل قاعدة البيانات
+alembic==1.16.4  
+
+# التعامل مع Redis للتخزين المؤقت والمهام السريعة
+redis==6.4.0  
+
+# تحسين أداء SQLAlchemy في إدارة الـ coroutines والـ threads
+greenlet==3.2.4  
+
+# محرك قوالب يستخدمه Alembic لإنشاء ملفات الترحيل
+Mako==1.3.10  
+
+# تبسيط التعامل مع النصوص في القوالب
+MarkupSafe==3.0.2  
+
+# قراءة المتغيرات من ملف .env
+python-dotenv==1.1.1  
+
+# دعم typing المتقدم في الإصدارات الأقدم من Python
+typing_extensions==4.14.1  
+
+
